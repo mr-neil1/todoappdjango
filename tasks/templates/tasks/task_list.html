@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+
+{% block title %}Mes Tâches{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 mx-auto">
+        <!-- Header avec bouton d'ajout -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-list-check me-2"></i>Gestion de Tâches</h1>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTaskModal">
+                <i class="fas fa-plus me-1"></i>Ajouter une tâche
+            </button>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card stats-card text-center shadow-sm">
+                    <div class="card-body">
+                        <span class="stats-number" id="total-tasks">{{ tasks.count }}</span>
+                        <small>Total</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card bg-success text-white text-center shadow-sm">
+                    <div class="card-body">
+                        <span class="stats-number" id="completed-tasks">{{ tasks|length }}</span>
+                        <small>Terminées</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card bg-warning text-dark text-center shadow-sm">
+                    <div class="card-body">
+                        <span class="stats-number" id="pending-tasks">0</span>
+                        <small>En cours</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card bg-danger text-white text-center shadow-sm">
+                    <div class="card-body">
+                        <span class="stats-number" id="urgent-tasks">0</span>
+                        <small>Urgentes</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recherche et filtres -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="search-input" class="form-control" placeholder="Rechercher une tâche...">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-outline-primary btn-sm filter-btn active" data-filter="all">
+                                <i class="fas fa-globe me-1"></i>Toutes
+                            </button>
+                            <button class="btn btn-outline-success btn-sm filter-btn" data-filter="completed">
+                                <i class="fas fa-check me-1"></i>Terminées
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm filter-btn" data-filter="pending">
+                                <i class="fas fa-clock me-1"></i>En cours
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm filter-btn" data-filter="urgent">
+                                <i class="fas fa-bolt me-1"></i>Urgentes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loader -->
+        <div class="loading mb-3">
+            <div class="spinner"></div>
+            <p class="text-center text-muted mt-2">Chargement...</p>
+        </div>
+
+        <!-- Liste des tâches -->
+        <div id="tasks-container">
+            {% if tasks %}
+                {% for task in tasks %}
+                    <div class="card task-item mb-3 shadow-sm {% if task.completed %}completed{% endif %}" 
+                         data-priority="{{ task.priority }}" 
+                         data-completed="{{ task.completed|lower }}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <input type="checkbox" 
+                                               class="task-checkbox me-3" 
+                                               data-task-id="{{ task.id }}"
+                                               {% if task.completed %}checked{% endif %}>
+                                        <h5 class="card-title mb-0 {% if task.completed %}text-decoration-line-through text-muted{% endif %}">
+                                            {{ task.title }}
+                                        </h5>
+                                    </div>
+                                    {% if task.description %}
+                                        <p class="card-text text-muted small mb-2">{{ task.description }}</p>
+                                    {% endif %}
+                                    <span class="badge 
+                                        {% if task.priority == 'urgente' %}bg-danger
+                                        {% elif task.priority == 'moyenne' %}bg-warning text-dark
+                                        {% else %}bg-success{% endif %}">
+                                        <i class="fas 
+                                            {% if task.priority == 'urgente' %}fa-bolt
+                                            {% elif task.priority == 'moyenne' %}fa-exclamation
+                                            {% else %}fa-arrow-down{% endif %} me-1"></i>
+                                        {{ task.get_priority_display }}
+                                    </span>
+                                    <small class="text-muted d-block mt-1">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        {{ task.created_at|date:"d/m/Y H:i" }}
+                                    </small>
+                                </div>
+                                <!-- ✅ BOUTON DE SUPPRESSION CORRIGÉ -->
+                                <button class="btn btn-outline-danger btn-sm delete-task" 
+                                        data-task-id="{{ task.id }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">Aucune tâche pour le moment</h4>
+                    <p class="text-muted">Commencez par ajouter votre première tâche !</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal d'ajout de tâche -->
+<div class="modal fade" id="addTaskModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-plus-circle me-2"></i>Ajouter une tâche</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'add_task' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Titre *</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="priority" class="form-label">Priorité</label>
+                        <select class="form-select" id="priority" name="priority">
+                            <option value="basse">Basse</option>
+                            <option value="moyenne" selected>Moyenne</option>
+                            <option value="urgente">Urgente</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Ajouter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Calcul des statistiques côté client
+document.addEventListener('DOMContentLoaded', function() {
+    function updateStats() {
+        const allTasks = document.querySelectorAll('.task-item').length;
+        const completedTasks = document.querySelectorAll('.task-item.completed').length;
+        const pendingTasks = allTasks - completedTasks;
+        const urgentTasks = document.querySelectorAll('.task-item[data-priority="urgente"]').length;
+        
+        document.getElementById('total-tasks').textContent = allTasks;
+        document.getElementById('completed-tasks').textContent = completedTasks;
+        document.getElementById('pending-tasks').textContent = pendingTasks;
+        document.getElementById('urgent-tasks').textContent = urgentTasks;
+    }
+    
+    // Appeler au chargement
+    updateStats();
+});
+
+// ✅ GESTION DE LA SUPPRESSION CORRIGÉE
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('delete-task') || e.target.closest('.delete-task')) {
+        const button = e.target.classList.contains('delete-task') ? e.target : e.target.closest('.delete-task');
+        const taskId = button.dataset.taskId;
+        const taskCard = button.closest('.task-item');
+        
+        if (confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
+            // Animation de suppression
+            taskCard.classList.add('deleting');
+            
+            setTimeout(() => {
+                fetch(`/delete/${taskId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        taskCard.remove(); // Supprimer l'élément du DOM
+                        updateStats();     // Mettre à jour les statistiques
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de la suppression de la tâche');
+                });
+            }, 300);
+        }
+    }
+});
+
+// Fonction pour obtenir le cookie CSRF
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,192 @@
+/* Variables et styles de base */
+:root {
+    --primary-color: #007bff;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --light-bg: #f8f9fa;
+    --dark-text: #343a40;
+    --light-text: #6c757d;
+    --border-radius: 8px;
+    --shadow: 0 2px 10px rgba(0,0,0,0.1);
+    --transition: all 0.3s ease;
+}
+
+body {
+    background-color: #f5f7fb;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Cartes des tâches */
+.task-item {
+    border-left: 4px solid #007bff;
+    transition: var(--transition);
+    border-radius: var(--border-radius);
+    border: none;
+}
+
+.task-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+}
+
+.task-item[data-priority="urgente"] {
+    border-left-color: var(--danger-color);
+}
+
+.task-item[data-priority="moyenne"] {
+    border-left-color: var(--warning-color);
+}
+
+.task-item[data-priority="basse"] {
+    border-left-color: var(--success-color);
+}
+
+.task-item.completed {
+    opacity: 0.7;
+    background-color: #f8f9fa;
+}
+
+.task-item.completed .card-title {
+    text-decoration: line-through !important;
+}
+
+/* Checkboxes personnalisées */
+.task-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--success-color);
+}
+
+/* Boutons de filtre */
+.filter-btn {
+    transition: var(--transition);
+    border-radius: 20px;
+}
+
+.filter-btn:hover {
+    transform: translateY(-1px);
+}
+
+.filter-btn.active {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+/* Modal */
+.modal-content {
+    border-radius: var(--border-radius);
+    border: none;
+    box-shadow: var(--shadow);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.task-item {
+    animation: fadeIn 0.5s ease;
+}
+
+/* Statistiques */
+.stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: var(--border-radius);
+}
+
+.stats-number {
+    font-size: 2rem;
+    font-weight: bold;
+    display: block;
+}
+
+/* Badges de priorité */
+.badge {
+    font-size: 0.75em;
+    padding: 0.5em 0.75em;
+    border-radius: 15px;
+}
+
+/* Boutons d'action */
+.delete-task {
+    transition: var(--transition);
+}
+
+.delete-task:hover {
+    transform: scale(1.1);
+    background-color: var(--danger-color) !important;
+    color: white !important;
+    border-color: var(--danger-color) !important;
+}
+
+/* Recherche */
+.search-box {
+    position: relative;
+}
+
+.search-box i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--light-text);
+}
+
+.search-box input {
+    padding-left: 40px;
+}
+
+/* Animations de suppression */
+.task-item.deleting {
+    animation: slideOut 0.3s ease forwards;
+}
+
+@keyframes slideOut {
+    to {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+}
+
+/* Loader */
+.loading {
+    display: none;
+    text-align: center;
+    padding: 20px;
+}
+
+.spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--primary-color);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .d-flex {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .filter-btn {
+        margin-bottom: 5px;
+    }
+}
